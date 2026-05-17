@@ -21,4 +21,3 @@ pj-androidlab/
 ├── .gitignore
 └── README.md
 ```
->>>>>>> 61af42b (Add Kim Family Ledger app)
