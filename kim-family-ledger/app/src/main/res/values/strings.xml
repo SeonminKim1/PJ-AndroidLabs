@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Kim Family 가계부</string>
+    <string name="launcher_name">가계부</string>
+    <string name="nav_home">홈</string>
+    <string name="nav_stats">통계</string>
+    <string name="nav_settings">설정</string>
+    <string name="month_badge_current">이번 달</string>
+    <string name="launch_tagline">오늘도 차곡차곡 기록해요</string>
+</resources>

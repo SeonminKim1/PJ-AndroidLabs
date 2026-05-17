@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Open ledger book -->
+    <path
+        android:fillColor="#FFF8F0"
+        android:pathData="M28,32h22v52H30c-1.1,0 -2,-0.9 -2,-2V34c0,-1.1 0.9,-2 2,-2z" />
+    <path
+        android:fillColor="#F5E6D8"
+        android:pathData="M50,32h30c1.1,0 2,0.9 2,2v46c0,1.1 -0.9,2 -2,2H52V32z" />
+    <path
+        android:fillColor="#C77D5A"
+        android:pathData="M50,32v52H30c-1.1,0 -2,-0.9 -2,-2V34c0,-1.1 0.9,-2 2,-2h20z" />
+    <path
+        android:strokeColor="#A86544"
+        android:strokeWidth="1.5"
+        android:pathData="M50,32v52" />
+    <!-- Ledger lines -->
+    <path
+        android:strokeColor="#E8C4B0"
+        android:strokeWidth="1.2"
+        android:pathData="M56,44h28M56,52h24M56,60h20" />
+    <!-- Won mark -->
+    <path
+        android:fillColor="#5A8F5A"
+        android:pathData="M36,48c0,-4.4 3.6,-8 8,-8s8,3.6 8,8c0,3.2 -1.9,6 -4.6,7.3L52,68h-6l-4.4,-12.7C38.9,54 36,51.2 36,48zM40,48c0,2.2 1.8,4 4,4s4,-1.8 4,-4 -1.8,-4 -4,-4 -4,1.8 -4,4z" />
+</vector>
