@@ -44,6 +44,22 @@ interface TransactionDao {
         query: String,
     ): Flow<List<TransactionEntity>>
 
+    @Query(
+        """
+        SELECT * FROM transactions
+        WHERE occurredAtMillis >= :startMillis AND occurredAtMillis < :endMillis
+        AND type = :type
+        AND categoryId = :categoryId
+        ORDER BY occurredAtMillis DESC
+        """,
+    )
+    fun observeByMonthAndCategory(
+        startMillis: Long,
+        endMillis: Long,
+        type: String,
+        categoryId: Long,
+    ): Flow<List<TransactionEntity>>
+
     @Query("SELECT * FROM transactions WHERE id = :id")
     suspend fun getById(id: Long): TransactionEntity?
 

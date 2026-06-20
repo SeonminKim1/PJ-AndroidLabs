@@ -151,6 +151,9 @@ fun LedgerNavHost(
                 StatsScreen(
                     factory = activityFactory,
                     appName = appName,
+                    onEditTransaction = { id ->
+                        navController.navigate(Routes.transactionForm(transactionId = id))
+                    },
                 )
             }
             composable(Routes.SETTINGS) {

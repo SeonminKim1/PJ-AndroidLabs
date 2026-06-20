@@ -47,6 +47,30 @@ class LedgerRepository(
         }
     }
 
+    fun observeTransactionsByCategory(
+        year: Int,
+        month: Int,
+        type: TransactionType,
+        categoryId: Long,
+    ): Flow<List<TransactionWithCategory>> {
+        val range = MonthRange.of(year, month)
+        return combine(
+            transactionDao.observeByMonthAndCategory(
+                range.startMillis,
+                range.endMillis,
+                type.name,
+                categoryId,
+            ),
+            categoryDao.observeAll(),
+        ) { transactions, categories ->
+            val categoryMap = categories.associateBy { it.id }
+            transactions.mapNotNull { entity ->
+                val category = categoryMap[entity.categoryId]?.toDomain() ?: return@mapNotNull null
+                TransactionWithCategory(entity.toDomain(), category)
+            }
+        }
+    }
+
     fun observeMonthlySummary(year: Int, month: Int): Flow<MonthlySummary> {
         val range = MonthRange.of(year, month)
         return transactionDao.observeTypeTotals(range.startMillis, range.endMillis).map { rows ->
