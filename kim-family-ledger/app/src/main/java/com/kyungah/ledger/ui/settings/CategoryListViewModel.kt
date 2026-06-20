@@ -3,6 +3,7 @@ package com.kimfamily.ledger.ui.settings
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kimfamily.ledger.data.repository.CategoryDeletePreview
 import com.kimfamily.ledger.data.repository.LedgerRepository
 import com.kimfamily.ledger.domain.model.Category
 import com.kimfamily.ledger.domain.model.TransactionType
@@ -20,6 +21,9 @@ data class CategoryListUiState(
     val newName: String = "",
     val selectedIconKey: String = "more_horiz",
     val errorMessage: String? = null,
+    val deletePreview: CategoryDeletePreview? = null,
+    val selectedReplacementCategoryId: Long? = null,
+    val showCannotDeleteLastDialog: Boolean = false,
 )
 
 class CategoryListViewModel(
@@ -70,6 +74,17 @@ class CategoryListViewModel(
         _uiState.update { it.copy(showAddDialog = false, editingCategory = null, newName = "") }
     }
 
+    fun dismissDeleteDialog() {
+        _uiState.update {
+            it.copy(
+                deletePreview = null,
+                selectedReplacementCategoryId = null,
+                showCannotDeleteLastDialog = false,
+                errorMessage = null,
+            )
+        }
+    }
+
     fun onNameChange(name: String) {
         _uiState.update { it.copy(newName = name, errorMessage = null) }
     }
@@ -101,13 +116,54 @@ class CategoryListViewModel(
         }
     }
 
-    fun deleteCategory(category: Category) {
-        if (category.isDefault) return
+    fun showDeleteDialog(category: Category) {
         viewModelScope.launch {
-            val deleted = repository.deleteCategory(category)
-            if (!deleted) {
-                _uiState.update { it.copy(errorMessage = "사용 중인 카테고리는 삭제할 수 없습니다") }
+            val preview = repository.getCategoryDeletePreview(category)
+            val replacementCategoryId = preview.replacementCategories.firstOrNull()?.id
+            if (!preview.canDelete) {
+                _uiState.update {
+                    it.copy(
+                        showCannotDeleteLastDialog = true,
+                        deletePreview = preview,
+                        selectedReplacementCategoryId = null,
+                        errorMessage = null,
+                    )
+                }
+                return@launch
             }
+            _uiState.update {
+                it.copy(
+                    deletePreview = preview,
+                    selectedReplacementCategoryId = replacementCategoryId,
+                    errorMessage = null,
+                )
+            }
+        }
+    }
+
+    fun onReplacementCategorySelected(categoryId: Long) {
+        _uiState.update { it.copy(selectedReplacementCategoryId = categoryId) }
+    }
+
+    fun deleteCategory() {
+        val state = _uiState.value
+        val preview = state.deletePreview ?: return
+        val replacementCategory = preview.replacementCategories
+            .firstOrNull { it.id == state.selectedReplacementCategoryId }
+        viewModelScope.launch {
+            val deleted = repository.deleteCategory(preview.category, replacementCategory)
+            if (!deleted) {
+                _uiState.update {
+                    it.copy(
+                        deletePreview = null,
+                        selectedReplacementCategoryId = null,
+                        showCannotDeleteLastDialog = true,
+                        errorMessage = null,
+                    )
+                }
+                return@launch
+            }
+            dismissDeleteDialog()
         }
     }
 }

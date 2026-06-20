@@ -17,6 +17,14 @@ import kotlinx.coroutines.flow.map
 import org.json.JSONArray
 import org.json.JSONObject
 
+data class CategoryDeletePreview(
+    val category: Category,
+    val transactionCount: Int,
+    val replacementCategories: List<Category>,
+) {
+    val canDelete: Boolean get() = replacementCategories.isNotEmpty()
+}
+
 class LedgerRepository(
     private val categoryDao: CategoryDao,
     private val transactionDao: TransactionDao,
@@ -134,9 +142,26 @@ class LedgerRepository(
         }
     }
 
-    suspend fun deleteCategory(category: Category): Boolean {
-        if (category.isDefault) return false
-        if (transactionDao.countByCategory(category.id) > 0) return false
+    suspend fun getCategoryDeletePreview(category: Category): CategoryDeletePreview {
+        val transactionCount = transactionDao.countByCategory(category.id)
+        val replacementCategories = categoryDao.getByType(category.type.name)
+            .filter { it.id != category.id }
+            .map { it.toDomain() }
+
+        return CategoryDeletePreview(
+            category = category,
+            transactionCount = transactionCount,
+            replacementCategories = replacementCategories,
+        )
+    }
+
+    suspend fun deleteCategory(category: Category, replacementCategory: Category?): Boolean {
+        if (categoryDao.countByType(category.type.name) <= 1) return false
+        val transactionCount = transactionDao.countByCategory(category.id)
+        if (transactionCount > 0) {
+            val replacementId = replacementCategory?.id ?: return false
+            transactionDao.moveCategory(category.id, replacementId)
+        }
         categoryDao.delete(category.toEntity())
         return true
     }

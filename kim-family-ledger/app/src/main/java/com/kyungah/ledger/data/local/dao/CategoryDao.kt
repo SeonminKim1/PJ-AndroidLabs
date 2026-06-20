@@ -20,11 +20,17 @@ interface CategoryDao {
     @Query("SELECT * FROM categories ORDER BY type ASC, isDefault DESC, name ASC")
     suspend fun getAll(): List<CategoryEntity>
 
+    @Query("SELECT * FROM categories WHERE type = :type ORDER BY isDefault DESC, name ASC")
+    suspend fun getByType(type: String): List<CategoryEntity>
+
     @Query("SELECT * FROM categories WHERE id = :id")
     suspend fun getById(id: Long): CategoryEntity?
 
     @Query("SELECT COUNT(*) FROM categories")
     suspend fun count(): Int
+
+    @Query("SELECT COUNT(*) FROM categories WHERE type = :type")
+    suspend fun countByType(type: String): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(categories: List<CategoryEntity>)
